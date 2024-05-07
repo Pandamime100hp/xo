@@ -1,4 +1,4 @@
-from abc import ABC, abstractmethod
+from abc import ABC
 
 from . import XOSymbol
 
@@ -12,21 +12,6 @@ class Person(ABC):
         self.symbol = symbol
         self.nickname = nickname
         self.score = 0
-    
-    @property
-    @abstractmethod
-    def symbol(self) -> XOSymbol:
-        pass
-
-    @property
-    @abstractmethod
-    def nickname(self) -> str:
-        pass
-
-    @property
-    @abstractmethod
-    def score(self) -> int:
-        pass
 
     def increment_score(self) -> None:
         self.score += 1
