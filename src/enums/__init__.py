@@ -1,5 +1,5 @@
 from enum import Enum
 
 class XOSymbol(Enum):
-    X = "X",
+    X = "X"
     O = "O"

@@ -1,0 +1,12 @@
+[run]
+branch = true
+source = .
+omit = ./tests/unit_tests/__pycache__
+data_file = ./tests/coverage_report/data.coverage
+
+[report]
+omit = ./tests/unit_tests/*
+
+[html]
+directory = ./tests/coverage_report/html_coverage
+skip_covered = false
