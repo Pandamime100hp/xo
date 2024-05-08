@@ -2,6 +2,7 @@ from src.enums import XOSymbol
 
 
 class Board:
+    
     HEADER: str = "      1   2   3"
     ROW_SEP: str = "    *---*---*---*"
     COL_SEP: str = "  %d | %s | %s | %s |"
@@ -58,7 +59,7 @@ class Board:
             row_id (int): Current row being processed.
             tiles (list[list[XOSymbol]]): 2D array of tiles with person symbols filled.
         """
-        self._fill_row(row_id=row_id, tiles=tiles) if tiles else self._fill_row_none(row_id=row_id)
+        self._fill_row(row_id=row_id, tiles=tiles) if tiles else self._fill_row_empty(row_id=row_id)
 
     def _fill_row_separator(self) -> None:
         """Prints a new row separator."""

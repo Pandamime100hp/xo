@@ -1,6 +1,6 @@
 from abc import ABC
 
-from . import XOSymbol
+from src.enums import XOSymbol
 
 
 class Person(ABC):

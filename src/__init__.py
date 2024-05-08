@@ -4,4 +4,3 @@ from .state import State
 from .board import Board
 from .controller import Controller
 from .enums import XOSymbol
-from .person import Person
