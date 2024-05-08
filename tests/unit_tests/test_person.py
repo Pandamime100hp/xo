@@ -1,10 +1,11 @@
 import unittest
 
-from src import XOSymbol
-from src import Person
+from src.enums import XOSymbol
+from src.actors import Person
 
 
 class TestPerson(unittest.TestCase):
+
     person: Person
 
     def setUp(self):

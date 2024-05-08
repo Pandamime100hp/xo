@@ -1,8 +1,9 @@
-from person import Person
-from enums import XOSymbol
+
+from src.actors import Person
+from src.enums import XOSymbol
 
 
-class Player(Person):
+class Enemy(Person):
     def __init__(self, symbol: XOSymbol, nickname: str) -> None:
         """_summary_
 
