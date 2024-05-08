@@ -1,6 +1,8 @@
 class Game:
     def __init__(self) -> None:
-        pass
+        """_summary_
+        """
 
     def run(self):
-        pass
+        """_summary_
+        """
