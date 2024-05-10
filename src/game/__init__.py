@@ -46,12 +46,13 @@ class Game:
     def exit(self) -> int:
         """_summary_
         """
+        self.game_state.set_state(4)
         print("Exit")
-        return 1
+        return 0
 
     def run(self) -> None:
         """Executes the games main loop."""
         self.game_state.set_state(0)
 
-        while True:
+        while not self.game_state.get_state(4):
             self.states[self.game_state.state.value]()

@@ -1,11 +1,15 @@
 import unittest
 
+from src.game import Game
+
 class TestGame(unittest.TestCase):
+    game: Game
+
     def setUp(self) -> None:
-        return super().setUp()
+        self.game = Game()
     
     def tearDown(self) -> None:
-        return super().tearDown()
+        self.game = None
     
     def test_welcome(self):
         pass
@@ -19,5 +23,6 @@ class TestGame(unittest.TestCase):
     def test_end_round(self):
         pass
 
-    def test_exit(self):
-        pass
+    def test_exit_success(self):
+        return_int: int = self.game.exit()
+        self.assertEqual(0, return_int)
