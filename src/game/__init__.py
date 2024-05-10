@@ -24,18 +24,28 @@ class Game:
         }
 
     def welcome(self):
+        """_summary_
+        """
         print("Welcome")
 
     def new_round(self):
+        """_summary_
+        """
         print("New round")
 
     def play_round(self):
+        """_summary_
+        """
         print("Play round")
 
     def end_round(self):
+        """_summary_
+        """
         print("End round")
 
     def exit(self):
+        """_summary_
+        """
         print("Exit")
 
     def run(self):
