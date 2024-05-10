@@ -1,4 +1,4 @@
-class State:
+class GameState:
     def __init__(self) -> None:
         """_summary_
         """

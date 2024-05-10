@@ -1,4 +1,3 @@
-
 from src.actors import Person
 from src.enums import XOSymbol
 
