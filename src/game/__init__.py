@@ -1,11 +1,14 @@
 from src.board import Board
 from src.controller import Controller
+from src.enums import State
 from src.game.game_state import GameState
 
 
 class Game:
     """_summary_
     """
+
+    exit_int: int = 0
     
     def __init__(self) -> None:
         """_summary_
@@ -16,11 +19,11 @@ class Game:
         self.board: Board = Board()
 
         self.states: dict = {
-            0: self.welcome,
-            1: self.new_round,
-            2: self.play_round,
-            3: self.end_round,
-            4: self.exit
+            State.WELCOME: self.welcome,
+            State.NEW_ROUND: self.new_round,
+            State.PLAY_ROUND: self.play_round,
+            State.END_ROUND: self.end_round,
+            State.EXIT: self.exit
         }
 
     def welcome(self):
@@ -46,13 +49,13 @@ class Game:
     def exit(self) -> int:
         """_summary_
         """
-        self.game_state.set_state(4)
+        self.game_state.state = State.EXIT
         print("Exit")
         return 0
 
-    def run(self) -> None:
+    def run(self) -> int:
         """Executes the games main loop."""
-        self.game_state.set_state(0)
-
-        while not self.game_state.get_state(4):
+        while self.game_state.state != State.EXIT:
             self.states[self.game_state.state.value]()
+
+        return self.exit_int
