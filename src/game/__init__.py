@@ -46,12 +46,12 @@ class Game:
         """
         print("End round")
 
-    def exit(self) -> int:
+    def exit(self) -> None:
         """_summary_
         """
         self.game_state.state = State.EXIT
         print("Exit")
-        return 0
+        self.exit_int = 0
 
     def run(self) -> int:
         """Executes the games main loop."""

@@ -1,6 +1,6 @@
 [run]
 branch = true
-source = .
+source = ./tests/unit_tests/*
 omit = ./tests/unit_tests/__pycache__
 data_file = ./tests/coverage_report/data.coverage
 
