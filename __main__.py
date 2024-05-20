@@ -2,8 +2,7 @@ from src.game import Game
 
 
 def main():
-    """_summary_
-    """
+    """Creates instance of the Game and executes it."""
     game: Game = Game()
     game.run()
 
