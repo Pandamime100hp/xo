@@ -1,7 +1,7 @@
 import unittest
 
-from src import Board
-from src import XOSymbol
+from src.board import Board
+from src.enums import XOSymbol
 
 
 class TestBoard(unittest.TestCase):

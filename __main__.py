@@ -1,7 +1,8 @@
-from src import Game
+from src.game import Game
 
 
 def main():
+    """Creates instance of the Game and executes it."""
     game: Game = Game()
     game.run()
 
