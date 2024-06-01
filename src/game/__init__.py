@@ -34,6 +34,7 @@ class Game:
         game.
         """
         print("Welcome")
+        user_input = self.controller.get_input()
 
     def new_round(self):
         """
