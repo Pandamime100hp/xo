@@ -1,3 +1,4 @@
+import random
 from src.actors.enemy import Enemy
 from src.actors.player import Player
 from src.board import Board
@@ -78,6 +79,7 @@ class Logic:
         """
         print("I see. Sounds like a formidable foe. Let the battle between good and evil begin!")
         clear_screen()
+        self.set_next_actor_turn_randomly()
         self.game_state.state = State.NEW_ROUND
 
     def _check_if_tile_empty(self, x: int, y: int) -> bool:
@@ -214,6 +216,51 @@ class Logic:
             XOSymbol: The symbol for the enemy. Returns XOSymbol.O if the user input is "X", otherwise returns XOSymbol.X.
         """
         return XOSymbol.O if user_input == "X" else XOSymbol.X
+    
+    def set_next_actor_turn_randomly(self) -> None:
+        """
+        Sets the next actor to take their turn in the game.
+
+        This function selects a random actor from the list of players and the enemy and assigns it to the `current_actor` attribute of the `game_state` object.
+
+        Returns:
+            None: This function does not return anything.
+        """
+        self.game_state.current_actor = random.choice([self.game_state.player, self.game_state.enemy])
+
+    def set_next_actor_turn(self) -> None:
+        """
+        Sets the next actor to take their turn in the game.
+
+        This function selects the next actor based on the current actor. If the current actor is the enemy, the next actor will be the player. Otherwise, the next actor will be the enemy. The selected actor is then assigned to the `current_actor` attribute of the `game_state` object.
+
+        Returns:
+            None: This function does not return anything.
+        """
+        self.game_state.current_actor = self.game_state.player if self.game_state.current_actor ==self.game_state.enemy else self.game_state.enemy
+
+    def get_input_coord(self, axis: str) -> int:
+        print("Your turn,", self.game_state.player.nickname, "!")
+        print(f"Please enter a tile position on the {axis} axis (1-3):")
+        x = int(self.controller.get_input()) - 1
+
+    def play_player_turn(self) -> None:
+        
+        x = self.get_input_coord("X")
+        
+        clear_screen()
+        self.board.draw()
+
+        y = self.get_input_coord("Y")
+        
+        try:
+            self.game_state.set_tile(x, y, self.game_state.player.symbol)
+        except ValueError:
+            print(f"Tile X={x}, Y={y} is already occupied. Please choose another tile.")
+            self.play_player_turn()
+
+    def play_enemy_turn(self) -> None:
+
 
     def welcome(self):
         """
@@ -264,22 +311,10 @@ class Logic:
 
             clear_screen()
             self.board.draw()
-            print("Your turn,", self.game_state.player.nickname, "!")
-            print("Please enter a tile position on the X axis (1-3):")
-            x = int(self.controller.get_input()) - 1
-            
-            clear_screen()
-            self.board.draw()
-            print("Your turn,", self.game_state.player.nickname, "!")
-            print("Please enter a tile position on the Y axis (1-3):")
-            y = int(self.controller.get_input()) - 1
-            
-            try:
-                self.game_state.set_tile(x, y, self.game_state.player.symbol)
-            except ValueError:
-                print(f"Tile X={x}, Y={y} is already occupied. Please choose another tile.")
-                continue
-
+            if self.game_state.current_actor == self.game_state.player:
+                self.play_player_turn()
+            else:
+                self.play_enemy_turn()
             self.check_for_winner()
 
     def end_round(self):

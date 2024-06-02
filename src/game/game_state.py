@@ -24,8 +24,6 @@ class GameState:
         """
         Resets the round by initializing the `tiles` attribute to a 3x3 grid of `XOSymbol.EMPTY`.
         
-        Parameters:
-            None
         Returns:
             None
         """
