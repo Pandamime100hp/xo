@@ -3,6 +3,7 @@ from enum import Enum
 class XOSymbol(Enum):
     X = "X"
     O = "O"
+    EMPTY = " "
 
 
 class State(Enum):
