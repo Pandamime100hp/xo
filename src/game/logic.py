@@ -1,4 +1,5 @@
 import random
+import time
 from src.actors.enemy import Enemy
 from src.actors.player import Player
 from src.board import Board
@@ -24,6 +25,22 @@ class Logic:
             State.EXIT: self.exit
         }
 
+    def player_symbol_choice(self) -> str:
+        """
+        Prompts the user to choose their symbol (X or O) and validates the input.
+
+        Returns:
+            str: The chosen symbol (X or O).
+        """
+        print("Please choose your symbol! (X/O)")
+        user_input = self.controller.get_input()
+
+        if user_input not in ["X", "O"]:
+            clear_screen()
+            print("Invalid input. Please enter X or O.")
+            user_input = self.player_symbol_choice()
+        return user_input
+
     def introduction(self) -> tuple[XOSymbol, XOSymbol]:
         """
         Introduces the player to the game and prompts them to choose their symbol.
@@ -32,15 +49,16 @@ class Logic:
             tuple[XOSymbol, XOSymbol]: A tuple containing the player's symbol and the enemy's symbol.
         """
         clear_screen()
-        print("Welcome, choose your symbol!")
-        user_input = self.controller.get_input()
+        print("Welcome knight!")
+
+        symbol: str = self.player_symbol_choice()
         
-        player_symbol: XOSymbol = self._set_player_symbol(user_input=user_input)
-        enemy_symbol: XOSymbol = self._set_enemy_symbol(user_input=user_input)
+        player_symbol: XOSymbol = self._set_player_symbol(user_input=symbol)
+        enemy_symbol: XOSymbol = self._set_enemy_symbol(user_input=symbol)
 
         return player_symbol, enemy_symbol
     
-    def set_player_nickname(self) -> str:
+    def set_player_nickname(self, player_symbol: XOSymbol) -> str:
         """
         Set the player's nickname by prompting the user for input.
 
@@ -49,13 +67,20 @@ class Logic:
         Returns:
             str: The player's nickname.
         """
-        clear_screen()
-        print("Excellent!")
+        print(f"Ah, so you have chosen the path of the {player_symbol.value}. Excellent choice!")
         print("Next, choose your nickname!")
         player_nickname = self.controller.get_input()
+        if len(player_nickname) == 0:
+            clear_screen()
+            print("Your nickname cannot be empty. Please enter a nickname.")
+            return self.set_player_nickname()
+        if len(player_nickname) > 15:
+            clear_screen()
+            print("Your nickname is too long. Please enter a nickname that is less than 15 characters long.")
+            return self.set_player_nickname()
         return player_nickname
     
-    def set_enemy_nickname(self) -> str:
+    def set_enemy_nickname(self, enemy_symbol: XOSymbol) -> str:
         """
         Sets the nickname of the enemy by prompting the user for input.
 
@@ -64,79 +89,40 @@ class Logic:
         Returns:
             str: The enemy's nickname.
         """
-        clear_screen()
-        print("We must discuss the elephant in the room. No knight can battle with no enemy.")
-        print("Who is your enemy?")
+        print("We must discuss the elephant in the room. No knight can do battle with no enemy.")
+        print(f"Your enemie are the {enemy_symbol.value}. What is your enemy's nickname?")
         enemy_nickname = self.controller.get_input()
+        if len(enemy_nickname) == 0:
+            clear_screen()
+            print("Your enemy's nickname cannot be empty. Please enter a nickname.")
+            return self.set_enemy_nickname()
+        if len(enemy_nickname) > 15:
+            clear_screen()
+            print("Your enemy's nickname is too long. Please enter a nickname that is less than 15 characters long.")
+            return self.set_enemy_nickname()
         return enemy_nickname
     
     def let_the_game_begin(self) -> None:
         """
         Let the game begin by printing a message and transitioning to the NEW_ROUND state.
 
+        This function clears the screen, displays a message to the user, sets the next actor's turn randomly, prints the current actor's nickname, and transitions to the NEW_ROUND state after a delay of 4 seconds.
+
         Returns:
             None
         """
-        print("I see. Sounds like a formidable foe. Let the battle between good and evil begin!")
         clear_screen()
+        print("I see. Sounds like a formidable foe. Let the battle between good and evil begin!")
         self.set_next_actor_turn_randomly()
+        print(f"It is {self.game_state.current_actor.nickname}'s turn!")
+        time.sleep(4)
         self.game_state.state = State.NEW_ROUND
-
-    def _check_if_tile_empty(self, x: int, y: int) -> bool:
-        """
-        Check if the tile at the given coordinates is empty.
-
-        Parameters:
-            x (int): The x-coordinate of the tile.
-            y (int): The y-coordinate of the tile.
-
-        Returns:
-            bool: True if the tile is empty, False otherwise.
-        """
-        return self.game_state.tiles[x][y] == XOSymbol.EMPTY
-    
-    def _check_if_next_tile_equal_horizontal(self, x: int, y: int) -> bool:
-        """
-        Check if the tile at the given coordinates is equal to the tile horizontally adjacent to it.
-
-        Parameters:
-            x (int): The x-coordinate of the tile.
-            y (int): The y-coordinate of the tile.
-
-        Returns:
-            bool: True if the tile is equal to the tile horizontally adjacent to it, False otherwise.
-        """
-        return self.game_state.tiles[x][y] == self.game_state.tiles[x+1][y]
-    
-    def _check_if_next_tile_equal_vertical(self, x: int, y: int) -> bool:
-        """
-        Check if the tile at the given coordinates is equal to the tile vertically adjacent to it.
-
-        Parameters:
-            x (int): The x-coordinate of the tile.
-            y (int): The y-coordinate of the tile.
-
-        Returns:
-            bool: True if the tile is equal to the tile vertically adjacent to it, False otherwise.
-        """
-        return self.game_state.tiles[x][y] == self.game_state.tiles[x][y+1]
-    
-    def _check_if_next_tile_equal_cross(self, x: int, y: int) -> bool:
-        """
-        Check if the tile at the given coordinates is equal to the tile diagonally adjacent to it.
-
-        Parameters:
-            x (int): The x-coordinate of the tile.
-            y (int): The y-coordinate of the tile.
-
-        Returns:
-            bool: True if the tile is equal to the tile diagonally adjacent to it, False otherwise.
-        """
-        return self.game_state.tiles[x][y] == self.game_state.tiles[x+1][y+1]
 
     def _check_winner_horizontal(self) -> bool:
         """
         Check if there is a horizontal winner in the game state.
+
+        x  x  x
 
         This function checks if there is a horizontal winner in the game state by comparing the values of the tiles in
         the game board. A horizontal winner occurs when the same symbol is present in the same row of the game board.
@@ -144,15 +130,17 @@ class Logic:
         Returns:
             bool: True if there is a horizontal winner, False otherwise.
         """
-        if self.game_state.tiles[0][0] == self.game_state.tiles[0][1] == self.game_state.tiles[0][2] or \
-           self.game_state.tiles[1][0] == self.game_state.tiles[1][1] == self.game_state.tiles[1][2] or \
-           self.game_state.tiles[2][0] == self.game_state.tiles[2][1] == self.game_state.tiles[2][2]:
-            return True
-        return False
+        return self.game_state.tiles[0][0] == self.game_state.tiles[0][1] == self.game_state.tiles[0][2] != XOSymbol.EMPTY or \
+           self.game_state.tiles[1][0] == self.game_state.tiles[1][1] == self.game_state.tiles[1][2] != XOSymbol.EMPTY or \
+           self.game_state.tiles[2][0] == self.game_state.tiles[2][1] == self.game_state.tiles[2][2] != XOSymbol.EMPTY
 
     def _check_winner_vertical(self) -> bool:
         """
         Check if there is a vertical winner in the game state.
+
+        x
+        x
+        x
 
         This function checks if there is a vertical winner in the game state by comparing the values of the tiles in
         the game board. A vertical winner occurs when the same symbol is present in the same column of the game board.
@@ -160,15 +148,17 @@ class Logic:
         Returns:
             bool: True if there is a vertical winner, False otherwise.
         """
-        if self.game_state.tiles[0][0] == self.game_state.tiles[1][0] == self.game_state.tiles[2][0] or \
-           self.game_state.tiles[0][1] == self.game_state.tiles[1][1] == self.game_state.tiles[2][1] or \
-           self.game_state.tiles[0][2] == self.game_state.tiles[1][2] == self.game_state.tiles[2][2]:
-            return True
-        return False
+        return self.game_state.tiles[0][0] == self.game_state.tiles[1][0] == self.game_state.tiles[2][0] != XOSymbol.EMPTY or \
+           self.game_state.tiles[0][1] == self.game_state.tiles[1][1] == self.game_state.tiles[2][1] != XOSymbol.EMPTY or \
+           self.game_state.tiles[0][2] == self.game_state.tiles[1][2] == self.game_state.tiles[2][2] != XOSymbol.EMPTY
 
     def _check_winner_cross(self) -> bool:
         """
         Check if there is a diagonal winner in the game state.
+
+        x                  x
+          x      or      x
+            x          x
 
         This function checks if there is a diagonal winner in the game state by comparing the values of the tiles in
         the game board. A diagonal winner occurs when the same symbol is present in the same diagonal of the game board.
@@ -176,10 +166,8 @@ class Logic:
         Returns:
             bool: True if there is a diagonal winner, False otherwise.
         """
-        if self.game_state.tiles[0][0] == self.game_state.tiles[1][1] == self.game_state.tiles[2][2] or \
-           self.game_state.tiles[0][2] == self.game_state.tiles[1][1] == self.game_state.tiles[2][0]:
-            return True
-        return False
+        return self.game_state.tiles[0][0] == self.game_state.tiles[1][1] == self.game_state.tiles[2][2] != XOSymbol.EMPTY or \
+           self.game_state.tiles[0][2] == self.game_state.tiles[1][1] == self.game_state.tiles[2][0] != XOSymbol.EMPTY
 
     def check_for_winner(self) -> None:
         """
@@ -190,8 +178,10 @@ class Logic:
         Returns:
             None: This function does not return anything.
         """
+        
         if self._check_winner_vertical() or self._check_winner_horizontal() or self._check_winner_cross():
-            self.game_state.state = State.END_ROUND
+            return True
+        return False
 
     def _set_player_symbol(self, user_input: str) -> XOSymbol:
         """
@@ -237,15 +227,21 @@ class Logic:
         Returns:
             None: This function does not return anything.
         """
-        self.game_state.current_actor = self.game_state.player if self.game_state.current_actor ==self.game_state.enemy else self.game_state.enemy
+        self.game_state.current_actor = self.game_state.player if self.game_state.current_actor == self.game_state.enemy else self.game_state.enemy
 
     def get_input_coord(self, axis: str) -> int:
-        print("Your turn,", self.game_state.player.nickname, "!")
+        print(f"Your turn, {self.game_state.player.nickname}!")
         print(f"Please enter a tile position on the {axis} axis (1-3):")
-        x = int(self.controller.get_input()) - 1
+        coord_str: str = self.controller.get_input()
+        if int(coord_str) < 1 or int(coord_str) > 3:
+            clear_screen()
+            self.board.draw()
+            print("Invalid input. Please enter a number between 1 and 3.")
+            return self.get_input_coord(axis)
+        return int(coord_str) - 1
 
     def play_player_turn(self) -> None:
-        
+
         x = self.get_input_coord("X")
         
         clear_screen()
@@ -260,7 +256,13 @@ class Logic:
             self.play_player_turn()
 
     def play_enemy_turn(self) -> None:
+        x = random.randint(0, 2)
+        y = random.randint(0, 2)
 
+        try:
+            self.game_state.set_tile(x, y, self.game_state.enemy.symbol)
+        except ValueError:
+            self.play_enemy_turn()
 
     def welcome(self):
         """
@@ -273,8 +275,10 @@ class Logic:
         """
 
         player_symbol, enemy_symbol = self.introduction()
-        player_nickname = self.set_player_nickname()
-        enemy_nickname = self.set_enemy_nickname()
+        clear_screen()
+        player_nickname = self.set_player_nickname(player_symbol=player_symbol)
+        clear_screen()
+        enemy_nickname = self.set_enemy_nickname(enemy_symbol=enemy_symbol)
 
         self.game_state.player = Player(symbol=player_symbol, nickname=player_nickname)
         self.game_state.enemy = Enemy(symbol=enemy_symbol, nickname=enemy_nickname)
@@ -315,7 +319,9 @@ class Logic:
                 self.play_player_turn()
             else:
                 self.play_enemy_turn()
-            self.check_for_winner()
+            if self.check_for_winner():
+                self.game_state.state = State.END_ROUND
+            self.set_next_actor_turn()
 
     def end_round(self):
         """
@@ -327,8 +333,16 @@ class Logic:
         #         - state == new round
         #     - exit
         """
-        
-        print(f"{self.game_state.player.nickname} has won the round!")
+        clear_screen()
+        self.game_state.current_actor.increment_score()
+        print(f"{self.game_state.current_actor.nickname} has won the round!")
+        print(f"Your score: {self.game_state.player.score}", f"Enemy score: {self.game_state.enemy.score}")
+        print("Do you want to play again? (Y/N)")
+        decision: str = self.controller.get_input()
+        if decision == "Y":
+            self.game_state.state = State.NEW_ROUND
+        else:
+            self.game_state.state = State.EXIT
 
     def exit(self) -> None:
         """
