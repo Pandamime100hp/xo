@@ -353,11 +353,3 @@ class Logic:
         #     - exit
         """
         self.game_state.state = State.EXIT
-
-
-
-        
-        
-        
-        
-       
