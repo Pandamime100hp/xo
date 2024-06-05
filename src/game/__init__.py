@@ -5,7 +5,7 @@ from src.game.logic import Logic
 
 
 class Game:
-    """Object that encapsulate all components of the game and runs the main loop."""
+    """Game class that handles the games workflow based on the current game state."""
 
     exit_int: int = 0
     
@@ -14,6 +14,9 @@ class Game:
         Builds the framework of the Game with a GameState, Controller and Board. 
         The Game also initialises the different states the game enters and 
         associates each state with a function for the respective state.
+
+        Returns:
+            None
         """
 
         self.logic: Logic = Logic()
@@ -21,7 +24,11 @@ class Game:
         self.board: Board = Board()
 
     def run(self) -> int:
-        """Executes the games main loop."""
+        """Executes the games main loop.
+        
+        Returns:
+            int: Exit code
+        """
         while self.logic.game_state.state != State.EXIT:
             self.logic.game_state_actions[self.logic.game_state.state]()
 

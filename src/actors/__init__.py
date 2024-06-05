@@ -11,14 +11,21 @@ class Person(ABC):
     def __init__(self, symbol: XOSymbol, nickname: str) -> None:
         """Base class representing a Player or Enemy.
 
-        Args:
+        Parameters:
             symbol (XOSymbol): Person symbol specified by XOSymbol enum.
             nickname (str): Person nickname.
+
+        Returns:
+            None
         """
         self.symbol = symbol
         self.nickname = nickname
         self.score = 0
 
     def increment_score(self) -> None:
-        """Increase the score of the person."""
+        """Increase the score of the person.
+
+        Returns:
+            None
+        """
         self.score += 1
