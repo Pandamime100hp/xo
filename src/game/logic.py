@@ -1,5 +1,6 @@
 import random
 import time
+import i18n
 from src.actors.enemy import Enemy
 from src.actors.player import Player
 from src.board import Board
@@ -16,6 +17,10 @@ class Logic:
         self.game_state: GameState = GameState()
         self.controller: Controller = Controller()
         self.board: Board = Board()
+        self.translator = i18n
+
+        self.translator.set("en", "json")
+        self.translator.load_path.append("./locale")
 
         self.game_state_actions: dict = {
             State.WELCOME: self.welcome,
@@ -32,12 +37,12 @@ class Logic:
         Returns:
             str: The chosen symbol (X or O).
         """
-        print("Please choose your symbol! (X/O)")
+        self.translator.t("en.symbol_choice")
         user_input = self.controller.get_input()
 
         if user_input not in ["X", "O"]:
             clear_screen()
-            print("Invalid input. Please enter X or O.")
+            self.translator("symbol_choice_error")
             user_input = self.player_symbol_choice()
         return user_input
 
@@ -49,7 +54,7 @@ class Logic:
             tuple[XOSymbol, XOSymbol]: A tuple containing the player's symbol and the enemy's symbol.
         """
         clear_screen()
-        print("Welcome knight!")
+        self.translator.t("welcome")
 
         symbol: str = self.player_symbol_choice()
         
@@ -58,7 +63,7 @@ class Logic:
 
         return player_symbol, enemy_symbol
     
-    def set_player_nickname(self, player_symbol: XOSymbol) -> str:
+    def set_player_nickname(self, player_symbol: str) -> str:
         """
         Set the player's nickname by prompting the user for input.
 
@@ -67,20 +72,19 @@ class Logic:
         Returns:
             str: The player's nickname.
         """
-        print(f"Ah, so you have chosen the path of the {player_symbol.value}. Excellent choice!")
-        print("Next, choose your nickname!")
+        self.translator.t("set_player_nickname", player_symbol=player_symbol)
         player_nickname = self.controller.get_input()
         if len(player_nickname) == 0:
             clear_screen()
-            print("Your nickname cannot be empty. Please enter a nickname.")
+            self.translator.t("set_player_nickname_empty_error")
             return self.set_player_nickname()
         if len(player_nickname) > 15:
             clear_screen()
-            print("Your nickname is too long. Please enter a nickname that is less than 15 characters long.")
+            self.translator.t("set_player_nickname_too_long_error")
             return self.set_player_nickname()
         return player_nickname
     
-    def set_enemy_nickname(self, enemy_symbol: XOSymbol) -> str:
+    def set_enemy_nickname(self, enemy_symbol: str) -> str:
         """
         Sets the nickname of the enemy by prompting the user for input.
 
@@ -89,16 +93,15 @@ class Logic:
         Returns:
             str: The enemy's nickname.
         """
-        print("We must discuss the elephant in the room. No knight can do battle with no enemy.")
-        print(f"Your enemie are the {enemy_symbol.value}. What is your enemy's nickname?")
+        self.translator.t("set_enemy_nickname", enemy_symbol=enemy_symbol)
         enemy_nickname = self.controller.get_input()
         if len(enemy_nickname) == 0:
             clear_screen()
-            print("Your enemy's nickname cannot be empty. Please enter a nickname.")
+            self.translator.t("set_enemy_nickname_empty_error")
             return self.set_enemy_nickname()
         if len(enemy_nickname) > 15:
             clear_screen()
-            print("Your enemy's nickname is too long. Please enter a nickname that is less than 15 characters long.")
+            self.translator.t("set_enemy_nickname_too_long_error")
             return self.set_enemy_nickname()
         return enemy_nickname
     
@@ -112,9 +115,9 @@ class Logic:
             None
         """
         clear_screen()
-        print("I see. Sounds like a formidable foe. Let the battle between good and evil begin!")
+        self.translator.t("let_the_game_begin")
         self.set_next_actor_turn_randomly()
-        print(f"It is {self.game_state.current_actor.nickname}'s turn!")
+        self.translator.t("player_turn")
         time.sleep(4)
         self.game_state.state = State.NEW_ROUND
 
@@ -166,8 +169,9 @@ class Logic:
         Returns:
             bool: True if there is a diagonal winner, False otherwise.
         """
-        return self.game_state.tiles[0][0] == self.game_state.tiles[1][1] == self.game_state.tiles[2][2] != XOSymbol.EMPTY or \
-           self.game_state.tiles[0][2] == self.game_state.tiles[1][1] == self.game_state.tiles[2][0] != XOSymbol.EMPTY
+        return self.game_state.tiles[1][1] and (
+            self.game_state.tiles[0][0] == self.game_state.tiles[2][2] != XOSymbol.EMPTY or \
+            self.game_state.tiles[0][2] == self.game_state.tiles[2][0] != XOSymbol.EMPTY)
 
     def check_for_winner(self) -> None:
         """
@@ -179,9 +183,7 @@ class Logic:
             None: This function does not return anything.
         """
         
-        if self._check_winner_vertical() or self._check_winner_horizontal() or self._check_winner_cross():
-            return True
-        return False
+        return self._check_winner_vertical() or self._check_winner_horizontal() or self._check_winner_cross()
 
     def _set_player_symbol(self, user_input: str) -> XOSymbol:
         """
@@ -230,13 +232,12 @@ class Logic:
         self.game_state.current_actor = self.game_state.player if self.game_state.current_actor == self.game_state.enemy else self.game_state.enemy
 
     def get_input_coord(self, axis: str) -> int:
-        print(f"Your turn, {self.game_state.player.nickname}!")
-        print(f"Please enter a tile position on the {axis} axis (1-3):")
+        self.translator.t("tile_position_input", player_nickname=self.game_state.player.nickname, axis=axis)
         coord_str: str = self.controller.get_input()
         if int(coord_str) < 1 or int(coord_str) > 3:
             clear_screen()
             self.board.draw()
-            print("Invalid input. Please enter a number between 1 and 3.")
+            self.translator.t("tile_position_input_error")
             return self.get_input_coord(axis)
         return int(coord_str) - 1
 
@@ -252,7 +253,7 @@ class Logic:
         try:
             self.game_state.set_tile(x, y, self.game_state.player.symbol)
         except ValueError:
-            print(f"Tile X={x}, Y={y} is already occupied. Please choose another tile.")
+            self.translator.t("tile_position_occupied_error", x=x, y=y)
             self.play_player_turn()
 
     def play_enemy_turn(self) -> None:
@@ -276,9 +277,9 @@ class Logic:
 
         player_symbol, enemy_symbol = self.introduction()
         clear_screen()
-        player_nickname = self.set_player_nickname(player_symbol=player_symbol)
+        player_nickname = self.set_player_nickname(player_symbol=player_symbol.value)
         clear_screen()
-        enemy_nickname = self.set_enemy_nickname(enemy_symbol=enemy_symbol)
+        enemy_nickname = self.set_enemy_nickname(enemy_symbol=enemy_symbol.value)
 
         self.game_state.player = Player(symbol=player_symbol, nickname=player_nickname)
         self.game_state.enemy = Enemy(symbol=enemy_symbol, nickname=enemy_nickname)
@@ -335,9 +336,9 @@ class Logic:
         """
         clear_screen()
         self.game_state.current_actor.increment_score()
-        print(f"{self.game_state.current_actor.nickname} has won the round!")
-        print(f"Your score: {self.game_state.player.score}", f"Enemy score: {self.game_state.enemy.score}")
-        print("Do you want to play again? (Y/N)")
+        self.translator.t("winner", winner=self.game_state.current_actor.nickname)
+        self.translator.t("score", player_score=self.game_state.player.score, enemy_score=self.game_state.enemy.score)
+        self.translator.t("replay")
         decision: str = self.controller.get_input()
         if decision == "Y":
             self.game_state.state = State.NEW_ROUND
